@@ -23,4 +23,23 @@ after_initialize do
       @query
     end
   end
+
+  class ::Discourse::Cors
+    def self.apply_headers(cors_origins, env, headers)
+      origin = nil
+
+      if cors_origins
+        if origin = env['HTTP_ORIGIN']
+          origin = nil unless cors_origins.include?(origin)
+        end
+
+        headers['Access-Control-Allow-Origin'] = origin || cors_origins[0]
+        headers['Access-Control-Allow-Headers'] = 'X-Requested-With, X-CSRF-Token, Discourse-Visible'
+        headers['Access-Control-Expose-Headers'] = 'X-Discourse-Username'
+        headers['Access-Control-Allow-Credentials'] = 'true'
+      end
+
+      headers
+    end
+  end
 end

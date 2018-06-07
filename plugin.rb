@@ -37,6 +37,7 @@ after_initialize do
         headers['Access-Control-Allow-Headers'] = 'X-Requested-With, X-CSRF-Token, Discourse-Visible'
         headers['Access-Control-Expose-Headers'] = 'X-Discourse-Username'
         headers['Access-Control-Allow-Credentials'] = 'true'
+        headers['Access-Control-Allow-Methods'] = 'GET, DELETE'
       end
 
       headers

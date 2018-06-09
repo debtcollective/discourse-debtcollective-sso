@@ -3,7 +3,6 @@
 # version: 0.0.1
 # authors: Debt Syndicate Developers
 
-
 after_initialize do
   class ::AdminUserIndexQuery
     def filter_by_ids
@@ -37,7 +36,7 @@ after_initialize do
         headers['Access-Control-Allow-Headers'] = 'X-Requested-With, X-CSRF-Token, Discourse-Visible'
         headers['Access-Control-Expose-Headers'] = 'X-Discourse-Username'
         headers['Access-Control-Allow-Credentials'] = 'true'
-        headers['Access-Control-Allow-Methods'] = 'GET, DELETE'
+        headers['Access-Control-Allow-Methods'] = 'HEAD, OPTIONS, GET, DELETE'
       end
 
       headers

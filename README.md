@@ -1,2 +1,3 @@
-# discourse-utilities
-Miscellaneous utility extensions to Discourse to enable Debt Collective features
+# discourse-debtcollective-sso
+
+Extensions to Discourse SSO provider to work the way we need

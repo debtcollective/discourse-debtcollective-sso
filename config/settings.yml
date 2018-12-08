@@ -1,0 +1,5 @@
+plugins:
+  debtcollective_sso_user_custom_fields:
+    default: "state|zip|phone_number"
+    client: false
+    type: list

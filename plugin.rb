@@ -1,29 +1,11 @@
-# name: Debt Collective Discourse Utilities
-# about: Miscellaneous utilities to make Debt Collective functionality work. Probably not useful to anyone else
-# version: 0.0.1
-# authors: Debt Syndicate Developers
+# name: discourse-debtcollective-sso
+# about: Extensions to Discourse SSO provider to work the way we need
+# version: 0.0.2
+# authors: @debtcollective
 
 after_initialize do
-  class ::AdminUserIndexQuery
-    def filter_by_ids
-      if params[:ids].present?
-        @query.where('"users"."id" in (:ids)', ids: params[:ids].split(",").map { |s| s.to_i })
-      end
-    end
-
-    def find_users_query
-      append filter_by_ids
-      append filter_by_trust
-      append filter_by_query_classification
-      append filter_by_ip
-      append filter_exclude
-      append filter_by_search
-
-      @query
-    end
-  end
-
-  class ::Discourse::Cors
+  # This is needed by the dc-vue-header in order to work
+  module DebtCollectiveCors
     def self.apply_headers(cors_origins, env, headers)
       origin = nil
 
@@ -41,5 +23,72 @@ after_initialize do
 
       headers
     end
+  end
+
+  ::Discourse::Cors.class_eval do
+    prepend DebtCollectiveCors
+  end
+
+  # SSO payload to return whitelisted user custom_fields
+  module DebtCollectiveSessionController
+    def sso_provider(payload = nil)
+      payload ||= request.query_string
+
+      if SiteSetting.enable_sso_provider
+        sso = SingleSignOn.parse(payload)
+
+        if sso.return_sso_url.blank?
+          render plain: "return_sso_url is blank, it must be provided", status: 400
+          return
+        end
+
+        if current_user
+          sso.name = current_user.name
+          sso.username = current_user.username
+          sso.email = current_user.email
+          sso.external_id = current_user.id.to_s
+          sso.admin = current_user.admin?
+          sso.moderator = current_user.moderator?
+          sso.groups = current_user.groups.pluck(:name).join(",")
+
+          # return letter_avatar if no uploaded_avatar
+          if current_user.uploaded_avatar.present?
+            base_url = Discourse.store.external? ? "#{Discourse.store.absolute_base_url}/" : Discourse.base_url
+            avatar_url = "#{base_url}#{Discourse.store.get_path_for_upload(current_user.uploaded_avatar)}"
+            sso.avatar_url = UrlHelper.absolute Discourse.store.cdn_url(avatar_url)
+          else
+            sso.avatar_url = current_user.small_avatar_url
+          end
+
+          if current_user.user_profile.profile_background.present?
+            sso.profile_background_url = UrlHelper.absolute upload_cdn_path(current_user.user_profile.profile_background)
+          end
+
+          if current_user.user_profile.card_background.present?
+            sso.card_background_url = UrlHelper.absolute upload_cdn_path(current_user.user_profile.card_background)
+          end
+
+          # return whitelisted custom fields
+          SiteSetting.debtcollective_sso_user_custom_fields.split('|').each do |custom_field|
+            sso.custom_fields["user_#{custom_field}"] = current_user.custom_fields.fetch(custom_field, "")
+          end
+
+          if request.xhr?
+            cookies[:sso_destination_url] = sso.to_url(sso.return_sso_url)
+          else
+            redirect_to sso.to_url(sso.return_sso_url)
+          end
+        else
+          cookies[:sso_payload] = request.query_string
+          redirect_to path('/login')
+        end
+      else
+        render body: nil, status: 404
+      end
+    end
+  end
+
+  ::SessionController.class_eval do
+    prepend DebtCollectiveSessionController
   end
 end

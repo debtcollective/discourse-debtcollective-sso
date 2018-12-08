@@ -5,7 +5,7 @@
 
 after_initialize do
   # This is needed by the dc-vue-header in order to work
-  module DebtCollectiveCors
+  class Discourse::Cors
     def self.apply_headers(cors_origins, env, headers)
       origin = nil
 
@@ -23,10 +23,6 @@ after_initialize do
 
       headers
     end
-  end
-
-  ::Discourse::Cors.class_eval do
-    prepend DebtCollectiveCors
   end
 
   # SSO payload to return whitelisted user custom_fields

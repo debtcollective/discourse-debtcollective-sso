@@ -1,3 +1,0 @@
-en:
-  site_settings:
-    debtcollective_sso_user_custom_fields: "Whitelisted user custom fields to include in the SSO payload"

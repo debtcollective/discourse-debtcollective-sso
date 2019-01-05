@@ -64,10 +64,10 @@ after_initialize do
             sso.card_background_url = UrlHelper.absolute upload_cdn_path(current_user.user_profile.card_background)
           end
 
-          # return whitelisted custom fields
-          SiteSetting.debtcollective_sso_user_custom_fields.split('|').each do |custom_field|
-            sso.custom_fields["user_#{custom_field}"] = current_user.custom_fields.fetch(custom_field, "")
-          end
+          # return user fields
+          sso.custom_fields["user_state"] = current_user.custom_fields.fetch("user_field_1").to_s
+          sso.custom_fields["user_zip"] = current_user.custom_fields.fetch("user_field_2").to_s
+          sso.custom_fields["user_phone_number"] = current_user.custom_fields.fetch("user_field_3").to_s
 
           if request.xhr?
             cookies[:sso_destination_url] = sso.to_url(sso.return_sso_url)

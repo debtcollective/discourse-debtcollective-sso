@@ -4,27 +4,6 @@
 # authors: @debtcollective
 
 after_initialize do
-  # This is needed by the dc-vue-header in order to work
-  class Discourse::Cors
-    def self.apply_headers(cors_origins, env, headers)
-      origin = nil
-
-      if cors_origins
-        if origin = env['HTTP_ORIGIN']
-          origin = nil unless cors_origins.include?(origin)
-        end
-
-        headers['Access-Control-Allow-Origin'] = origin || cors_origins[0]
-        headers['Access-Control-Allow-Headers'] = 'X-Requested-With, X-CSRF-Token, Discourse-Visible'
-        headers['Access-Control-Expose-Headers'] = 'X-Discourse-Username'
-        headers['Access-Control-Allow-Credentials'] = 'true'
-        headers['Access-Control-Allow-Methods'] = 'HEAD, OPTIONS, GET, DELETE'
-      end
-
-      headers
-    end
-  end
-
   # SSO payload to return whitelisted user custom_fields
   module DebtCollectiveSessionController
     def sso_provider(payload = nil)

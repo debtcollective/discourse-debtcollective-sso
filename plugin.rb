@@ -47,21 +47,25 @@ after_initialize do
           sso.moderator = current_user.moderator?
           sso.groups = current_user.groups.pluck(:name).join(",")
 
-          # return letter_avatar if no uploaded_avatar
           if current_user.uploaded_avatar.present?
             base_url = Discourse.store.external? ? "#{Discourse.store.absolute_base_url}/" : Discourse.base_url
             avatar_url = "#{base_url}#{Discourse.store.get_path_for_upload(current_user.uploaded_avatar)}"
             sso.avatar_url = UrlHelper.absolute Discourse.store.cdn_url(avatar_url)
           else
+            # return letter_avatar if no uploaded_avatar
             sso.avatar_url = current_user.small_avatar_url
           end
 
           if current_user.user_profile.profile_background_upload.present?
-            sso.profile_background_url = UrlHelper.absolute upload_cdn_path(current_user.user_profile.profile_background_upload)
+            sso.profile_background_url = UrlHelper.absolute(upload_cdn_path(
+              current_user.user_profile.profile_background_upload.url
+            ))
           end
 
           if current_user.user_profile.card_background_upload.present?
-            sso.card_background_url = UrlHelper.absolute upload_cdn_path(current_user.user_profile.card_background_upload)
+            sso.card_background_url = UrlHelper.absolute(upload_cdn_path(
+              current_user.user_profile.card_background_upload.url
+            ))
           end
 
           # return user fields

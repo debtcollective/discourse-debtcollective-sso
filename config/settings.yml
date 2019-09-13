@@ -1,0 +1,3 @@
+plugins:
+  enable_debtcollective_sso:
+    default: true

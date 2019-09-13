@@ -73,8 +73,8 @@ after_initialize do
 
     def user_custom_fields
       custom_fields = {
-        zip_code: @user.custom_fields.fetch("user_field_1", "").to_s,
-        state: @user.custom_fields.fetch("user_field_2", "").to_s,
+        state: @user.custom_fields.fetch("user_field_1", "").to_s,
+        zip_code: @user.custom_fields.fetch("user_field_2", "").to_s,
         phone_number: @user.custom_fields.fetch("user_field_3", "").to_s
       }
     end

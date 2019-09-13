@@ -9,9 +9,9 @@ require 'jwt'
 
 after_initialize do
   class DebtCollectiveSSO
-    COOKIE_DOMAIN = ENV["JWT_COOKIE_DOMAIN"] || ".lvh.me"
-    COOKIE_NAME = 'tdc_auth_token'
-    JWT_SECRET = ENV['JWT_SECRET'] || 'testing123'
+    COOKIE_DOMAIN = SiteSetting.sso_cookie_domain
+    COOKIE_NAME = SiteSetting.sso_cookie_name
+    JWT_SECRET = SiteSetting.sso_jwt_secret
 
     def initialize(user, cookies = {})
       @user = user
@@ -146,7 +146,47 @@ after_initialize do
     end
   end
 
+  module DebtCollectiveSessionController
+    def sso_provider
+      return_url = params[:return_url]
+
+      if !return_url
+        render plain: "redirect_url is blank, it must be provided", status: 400
+        return
+      end
+
+      if current_user
+        # regenerate jwt cookie
+        DebtCollectiveSSO.new(current_user, cookies).set_jwt_cookie
+
+        if request.xhr?
+          cookies[:sso_destination_url] = sso.to_url(sso.return_sso_url)
+        else
+          redirect_to return_url
+        end
+      else
+        cookies[:return_url] = return_url
+        redirect_to path('/login')
+      end
+    end
+
+    def login(user)
+      session.delete(SessionController::ACTIVATE_USER_KEY)
+      log_on_user(user)
+
+      if return_url = cookies.delete(:return_url) || cookies.delete(:sso_destination_url)
+        redirect_to return_url
+      else
+        render_serialized(user, UserSerializer)
+      end
+    end
+  end
+
   if SiteSetting.enable_debtcollective_sso
     Discourse.current_user_provider = DebtCollectiveCurrentUserProvider
+
+    ::SessionController.class_eval do
+      prepend DebtCollectiveSessionController
+    end
   end
 end

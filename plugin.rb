@@ -147,10 +147,10 @@ after_initialize do
   end
 
   module DebtCollectiveSessionController
-    def sso_provider
+    def sso_provider(payload = nil)
       return_url = params[:return_url]
 
-      if !return_url
+      if return_url.blank?
         render plain: "redirect_url is blank, it must be provided", status: 400
         return
       end
@@ -160,24 +160,13 @@ after_initialize do
         DebtCollectiveSSO.new(current_user, cookies).set_jwt_cookie
 
         if request.xhr?
-          cookies[:sso_destination_url] = sso.to_url(sso.return_sso_url)
+          cookies[:sso_destination_url] = return_url
         else
           redirect_to return_url
         end
       else
-        cookies[:return_url] = return_url
+        cookies[:sso_destination_url] = return_url
         redirect_to path('/login')
-      end
-    end
-
-    def login(user)
-      session.delete(SessionController::ACTIVATE_USER_KEY)
-      log_on_user(user)
-
-      if return_url = cookies.delete(:return_url) || cookies.delete(:sso_destination_url)
-        redirect_to return_url
-      else
-        render_serialized(user, UserSerializer)
       end
     end
   end

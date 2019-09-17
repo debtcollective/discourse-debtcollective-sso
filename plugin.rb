@@ -8,146 +8,21 @@
 require 'jwt'
 
 after_initialize do
-  class DebtCollectiveSSO
-    COOKIE_DOMAIN = SiteSetting.sso_cookie_domain
-    COOKIE_NAME = SiteSetting.sso_cookie_name
-    JWT_SECRET = SiteSetting.sso_jwt_secret
+  load File.expand_path('../lib/sso.rb', __FILE__)
+  load File.expand_path('../lib/current_user_provider.rb', __FILE__)
 
-    def initialize(user, cookies = {})
-      @user = user
-      @cookies = cookies
+  module DebtCollectiveSessionController
+    def sso_provider(payload = nil)
+      redirect_to path('/login')
     end
 
-    def generate_jwt
-      hmac_secret = JWT_SECRET
-      jwt_alg = "HS256"
-
-      token = JWT.encode(jwt_payload, hmac_secret, jwt_alg)
-    end
-
-    def set_jwt_cookie
-      domain = ENV["JWT_COOKIE_DOMAIN"] || ".lvh.me"
-      secure = Rails.env.production?
-
-      @cookies[COOKIE_NAME] = {
-        domain: COOKIE_DOMAIN,
-        expires: SiteSetting.maximum_session_age.hours.from_now,
-        httponly: true,
-        secure: SiteSetting.force_https,
-        value: generate_jwt,
-      }
-    end
-
-    def remove_jwt_cookie
-      @cookies.delete(COOKIE_NAME, domain: COOKIE_DOMAIN)
+    def sso_provider_signup
+      redirect_to path('/signup')
     end
 
     private
 
-    def user_avatar_url
-      avatar_url = @user.small_avatar_url
-
-      if @user.uploaded_avatar.present?
-        base_url = Discourse.store.external? ? "#{Discourse.store.absolute_base_url}/" : Discourse.base_url
-        avatar_url = "#{base_url}#{Discourse.store.get_path_for_upload(@user.uploaded_avatar)}"
-      end
-
-      avatar_url
-    end
-
-    def user_profile_background_url
-      if @user.user_profile.profile_background_upload.present?
-        profile_background_url = UrlHelper.absolute(upload_cdn_path(
-          @user.user_profile.profile_background_upload.url
-        ))
-      end
-    end
-
-    def user_card_background_url
-      if @user.user_profile.card_background_upload.present?
-        card_background_url = UrlHelper.absolute(upload_cdn_path(
-          @user.user_profile.card_background_upload.url
-        ))
-      end
-    end
-
-    def user_custom_fields
-      custom_fields = {
-        state: @user.custom_fields.fetch("user_field_1", "").to_s,
-        zip_code: @user.custom_fields.fetch("user_field_2", "").to_s,
-        phone_number: @user.custom_fields.fetch("user_field_3", "").to_s
-      }
-    end
-
-    def jwt_payload
-      groups = @user.groups.collect(&:name)
-
-      payload = {
-        active: @user.active,
-        admin: @user.admin?,
-        avatar_url: user_avatar_url,
-        card_background_url: user_card_background_url,
-        created_at: @user.created_at,
-        custom_fields: user_custom_fields,
-        email: @user.email,
-        external_id: @user.id,
-        groups: groups,
-        last_seen_at: @user.last_seen_at,
-        moderator: @user.moderator?,
-        name: @user.name,
-        profile_background_url: user_profile_background_url,
-        updated_at: @user.updated_at,
-        username: @user.username,
-      }
-    end
-  end
-
-  class DebtCollectiveCurrentUserProvider < ::Auth::DefaultCurrentUserProvider
-    def log_on_user(user, session, cookies, opts = {})
-      super(user, session, cookies, opts)
-
-      DebtCollectiveSSO.new(user, cookies).set_jwt_cookie
-    end
-
-    def log_off_user(session, cookies)
-      super(session, cookies)
-
-      DebtCollectiveSSO.new(current_user, cookies).remove_jwt_cookie
-    end
-
-    def refresh_session(user, session, cookies)
-      # if user was not loaded, no point refreshing session
-      # it could be an anonymous path, this would add cost
-      return if is_api? || !@env.key?(CURRENT_USER_KEY)
-
-      if !is_user_api? && @user_token && @user_token.user == user
-        rotated_at = @user_token.rotated_at
-
-        needs_rotation = @user_token.auth_token_seen ? rotated_at < UserAuthToken::ROTATE_TIME.ago : rotated_at < UserAuthToken::URGENT_ROTATE_TIME.ago
-
-        if needs_rotation
-          if @user_token.rotate!(user_agent: @env['HTTP_USER_AGENT'],
-                                 client_ip: @request.ip,
-                                 path: @env['REQUEST_PATH'])
-            cookies[TOKEN_COOKIE] = cookie_hash(@user_token.unhashed_auth_token)
-
-            # extend to set jwt cookie when refreshing session
-            DebtCollectiveSSO.new(user, cookies).set_jwt_cookie
-          end
-        end
-      end
-
-      if !user && cookies.key?(TOKEN_COOKIE)
-        cookies.delete(TOKEN_COOKIE)
-
-        # extend to remove jwt cookie
-        DebtCollectiveSSO.new(current_user, cookies).remove_jwt_cookie
-      end
-    end
-  end
-
-  module DebtCollectiveSessionController
-    def sso_provider(payload = nil)
+    def check_return_url
       return_url = params[:return_url]
 
       if return_url.blank?
@@ -155,27 +30,79 @@ after_initialize do
         return
       end
 
+      # Save return SSO return url in cookie
+      cookies[:sso_destination_url] = params[:return_url]
+    end
+
+    def check_current_user
+      return_url = params[:return_url]
+
       if current_user
         # regenerate jwt cookie
-        DebtCollectiveSSO.new(current_user, cookies).set_jwt_cookie
+        DebtCollective::SSO.new(current_user, cookies).set_jwt_cookie
 
         if request.xhr?
           cookies[:sso_destination_url] = return_url
         else
           redirect_to return_url
         end
-      else
-        cookies[:sso_destination_url] = return_url
-        redirect_to path('/login')
       end
     end
   end
 
+  module DebtCollectiveUsersController
+    # Override this method to redirect to url if sso_destination_url cookie is present
+    def perform_account_activation
+      raise Discourse::InvalidAccess.new if honeypot_or_challenge_fails?(params)
+
+      if @user = EmailToken.confirm(params[:token])
+        # Log in the user unless they need to be approved
+        if Guardian.new(@user).can_access_forum?
+          @user.enqueue_welcome_message('welcome_user') if @user.send_welcome_message
+          log_on_user(@user)
+
+          # Redirect to SSO signup before Wizards
+          if sso_destination_url = cookies[:sso_destination_url]
+            cookies[:sso_destination_url] = nil
+            return redirect_to(sso_destination_url)
+          end
+
+          if Wizard.user_requires_completion?(@user)
+            return redirect_to(wizard_path)
+          elsif destination_url = cookies[:destination_url]
+            cookies[:destination_url] = nil
+            return redirect_to(destination_url)
+          elsif SiteSetting.enable_sso_provider && payload = cookies.delete(:sso_payload)
+            return redirect_to(session_sso_provider_url + "?" + payload)
+          end
+        else
+          @needs_approval = true
+        end
+      else
+        flash.now[:error] = I18n.t('activation.already_done')
+      end
+
+      render layout: 'no_ember'
+    end
+  end
+
   if SiteSetting.enable_debtcollective_sso
-    Discourse.current_user_provider = DebtCollectiveCurrentUserProvider
+    Discourse.current_user_provider = DebtCollective::CurrentUserProvider
 
     ::SessionController.class_eval do
       prepend DebtCollectiveSessionController
+
+      before_action :check_return_url, only: [:sso_provider, :sso_provider_signup]
+      before_action :check_current_user, only: [:sso_provider, :sso_provider_signup]
+      skip_before_action :preload_json, :check_xhr, only: [:sso_provider_signup]
+    end
+
+    ::UsersController.class_eval do
+      prepend DebtCollectiveUsersController
+    end
+
+    Discourse::Application.routes.append do
+      get "session/sso_provider/signup" => "session#sso_provider_signup"
     end
   end
 end

@@ -1,27 +1,26 @@
+# frozen_string_literal: true
+
 module DebtCollective
   class SSO
-    COOKIE_DOMAIN = SiteSetting.sso_cookie_domain
-    COOKIE_NAME = SiteSetting.sso_cookie_name
-    JWT_SECRET = SiteSetting.sso_jwt_secret
-
     def initialize(user, cookies = {})
       @user = user
       @cookies = cookies
     end
 
     def generate_jwt
-      hmac_secret = JWT_SECRET
+      hmac_secret = SiteSetting.sso_jwt_secret
       jwt_alg = "HS256"
 
       token = JWT.encode(jwt_payload, hmac_secret, jwt_alg)
     end
 
     def set_jwt_cookie
-      domain = ENV["JWT_COOKIE_DOMAIN"] || ".lvh.me"
+      cookie_domain = SiteSetting.sso_cookie_domain
+      cookie_name = SiteSetting.sso_cookie_name
       secure = Rails.env.production?
 
-      @cookies[COOKIE_NAME] = {
-        domain: COOKIE_DOMAIN,
+      @cookies[cookie_name] = {
+        domain: cookie_domain,
         expires: SiteSetting.maximum_session_age.hours.from_now,
         httponly: true,
         secure: SiteSetting.force_https,
@@ -30,7 +29,10 @@ module DebtCollective
     end
 
     def remove_jwt_cookie
-      @cookies.delete(COOKIE_NAME, domain: COOKIE_DOMAIN)
+      cookie_domain = SiteSetting.sso_cookie_domain
+      cookie_name = SiteSetting.sso_cookie_name
+
+      @cookies.delete(cookie_name, domain: cookie_domain)
     end
 
     private

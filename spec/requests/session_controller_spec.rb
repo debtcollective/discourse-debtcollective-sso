@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe ::DiscourseDebtcollectiveCollectives::CollectivesController do
+describe "Sessions" do
   describe 'GET sso_provider' do
     context "no return_url parameter" do
       it 'returns error' do

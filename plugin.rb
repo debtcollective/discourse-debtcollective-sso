@@ -90,22 +90,38 @@ after_initialize do
     private
 
     def check_return_url
-      return_url = params[:return_url]
+      valid, message = is_valid_return_url?(params[:return_url])
 
-      if return_url.blank?
-        render plain: "redirect_url is blank, it must be provided", status: 400
-        return
-      end
-
-      # Save return SSO return url in cookie
-      cookies[:sso_destination_url] = params[:return_url]
+      render plain: message, status: 400 unless valid
     end
 
     def check_current_user
       if current_user
         # regenerate jwt cookie
         DebtCollective::SSO.new(current_user, cookies).set_jwt_cookie
+
+        # redirect to return_url
+        return_url = params[:return_url]
+        redirect_to(return_url)
+      else
+        # Save return SSO return url in cookie
+        cookies[:sso_destination_url] = params[:return_url]
       end
+    end
+
+    def is_valid_return_url?(return_url)
+      return_url = URI.parse(return_url)
+      host = return_url.host
+
+      if host.blank?
+        return false, "return_url must be a valid URL"
+      end
+
+      if !host.end_with?(request.domain)
+        return false, "return_url must be a valid subdomain"
+      end
+
+      true
     end
   end
 

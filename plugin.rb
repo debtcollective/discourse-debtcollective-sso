@@ -110,7 +110,7 @@ after_initialize do
     end
 
     def is_valid_return_url?(return_url)
-      return_url = URI.parse(return_url)
+      return_url = URI.parse(return_url.to_s)
       host = return_url.host
 
       if host.blank?

@@ -2,7 +2,18 @@
 
 This plugin implements our flavor of SSO for Discourse. We use cookie based authentication across subdomains instead of creating sessions between apps. This provides a better experience and fixes auth of sync sessions between Discourse and other apps.
 
+We are keeping the code from the Discourse SSO provider with our extensions, this is for backwards compatibility with our current tools application. We should remove this once we phase out our current tools.
+
 ## Usage
+
+This plugins exposes two endpoints.
+
+1. GET `/session/sso_cookies?redirect_url=example.com` used for login
+1. GET `/session/sso_cookies/signup?redirect_url=example.com` used for signup
+
+`redirect_url` is a required param. If it's missing, it will return 400
+
+To login or signup, other applications will redirect to either of these endpoints, and once the login or the signup is completed, it will redirect back to that URL with the SSO cookie set. Then other applications of the same domain will read the SSO cookie that contains a JWT with the user information.
 
 In development, you will need to run the Discourse server with some special configuration
 

@@ -2,7 +2,7 @@
 
 # name: discourse-debtcollective-sso
 # about: Extensions to Discourse SSO provider to work the way we need
-# version: 0.0.2
+# version: 0.0.3
 # authors: @debtcollective
 
 require 'jwt'
@@ -12,12 +12,79 @@ after_initialize do
   load File.expand_path('../lib/current_user_provider.rb', __FILE__)
 
   module DebtCollectiveSessionController
-    def sso_provider(payload = nil)
+    def sso_cookies
       redirect_to path('/login')
     end
 
-    def sso_provider_signup
+    def sso_cookies_signup
       redirect_to path('/signup')
+    end
+
+    # leave this here until we launch the new tools app
+    # to make it backwards compatible with the current tools
+    def sso_provider(payload = nil)
+      payload ||= request.query_string
+
+      if SiteSetting.enable_sso_provider
+        begin
+          sso = SingleSignOnProvider.parse(payload)
+        rescue SingleSignOnProvider::BlankSecret
+          render plain: I18n.t("sso.missing_secret"), status: 400
+          return
+        end
+
+        if sso.return_sso_url.blank?
+          render plain: "return_sso_url is blank, it must be provided", status: 400
+          return
+        end
+
+        if current_user
+          sso.name = current_user.name
+          sso.username = current_user.username
+          sso.email = current_user.email
+          sso.external_id = current_user.id.to_s
+          sso.admin = current_user.admin?
+          sso.moderator = current_user.moderator?
+          sso.groups = current_user.groups.pluck(:name).join(",")
+
+          if current_user.uploaded_avatar.present?
+            base_url = Discourse.store.external? ? "#{Discourse.store.absolute_base_url}/" : Discourse.base_url
+            avatar_url = "#{base_url}#{Discourse.store.get_path_for_upload(current_user.uploaded_avatar)}"
+            sso.avatar_url = UrlHelper.absolute Discourse.store.cdn_url(avatar_url)
+          else
+            # return letter_avatar if no uploaded_avatar
+            sso.avatar_url = current_user.small_avatar_url
+          end
+
+          if current_user.user_profile.profile_background_upload.present?
+            sso.profile_background_url = UrlHelper.absolute(upload_cdn_path(
+              current_user.user_profile.profile_background_upload.url
+            ))
+          end
+
+          if current_user.user_profile.card_background_upload.present?
+            sso.card_background_url = UrlHelper.absolute(upload_cdn_path(
+              current_user.user_profile.card_background_upload.url
+            ))
+          end
+
+          # return user fields
+          sso.custom_fields["user_state"] = current_user.custom_fields.fetch("user_field_1", "").to_s
+          sso.custom_fields["user_zip"] = current_user.custom_fields.fetch("user_field_2", "").to_s
+          sso.custom_fields["user_phone_number"] = current_user.custom_fields.fetch("user_field_3", "").to_s
+
+          if request.xhr?
+            cookies[:sso_destination_url] = sso.to_url(sso.return_sso_url)
+          else
+            redirect_to sso.to_url(sso.return_sso_url)
+          end
+        else
+          cookies[:sso_payload] = request.query_string
+          redirect_to path('/login')
+        end
+      else
+        render body: nil, status: 404
+      end
     end
 
     private
@@ -35,17 +102,9 @@ after_initialize do
     end
 
     def check_current_user
-      return_url = params[:return_url]
-
       if current_user
         # regenerate jwt cookie
         DebtCollective::SSO.new(current_user, cookies).set_jwt_cookie
-
-        if request.xhr?
-          cookies[:sso_destination_url] = return_url
-        else
-          redirect_to return_url
-        end
       end
     end
   end
@@ -92,9 +151,9 @@ after_initialize do
     ::SessionController.class_eval do
       prepend DebtCollectiveSessionController
 
-      before_action :check_return_url, only: [:sso_provider, :sso_provider_signup]
-      before_action :check_current_user, only: [:sso_provider, :sso_provider_signup]
-      skip_before_action :preload_json, :check_xhr, only: [:sso_provider_signup]
+      before_action :check_return_url, only: [:sso_cookies, :sso_cookies_signup]
+      before_action :check_current_user, only: [:sso_cookies, :sso_cookies_signup]
+      skip_before_action :preload_json, :check_xhr, only: [:sso_cookies, :sso_cookies_signup]
     end
 
     ::UsersController.class_eval do
@@ -102,7 +161,8 @@ after_initialize do
     end
 
     Discourse::Application.routes.append do
-      get "session/sso_provider/signup" => "session#sso_provider_signup"
+      get "session/sso_cookies/signup" => "session#sso_cookies_signup"
+      get "session/sso_cookies" => "session#sso_cookies"
     end
   end
 end

@@ -1,0 +1,12 @@
+plugins:
+  enable_debtcollective_sso:
+    default: true
+  sso_cookie_domain:
+    default: ".lvh.me"
+    shadowed_by_global: true
+  sso_cookie_name:
+    default: "tdc_auth_token"
+    shadowed_by_global: true
+  sso_jwt_secret:
+    default: "changeme"
+    shadowed_by_global: true

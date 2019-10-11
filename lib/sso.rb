@@ -2,6 +2,8 @@
 
 module DebtCollective
   class SSO
+    include GlobalPath
+
     def initialize(user, cookies = {})
       @user = user
       @cookies = cookies

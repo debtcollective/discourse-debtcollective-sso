@@ -8,10 +8,10 @@ We are keeping the code from the Discourse SSO provider with our extensions, thi
 
 This plugins exposes two endpoints.
 
-1. GET `/session/sso_cookies?redirect_url=example.com` used for login
-1. GET `/session/sso_cookies/signup?redirect_url=example.com` used for signup
+1. GET `/session/sso_cookies?return_url=example.com` used for login
+1. GET `/session/sso_cookies/signup?return_url=example.com` used for signup
 
-`redirect_url` is a required param. If it's missing, it will return 400
+`return_url` is a required param. If it's missing, it will return 400
 
 To login or signup, other applications will redirect to either of these endpoints, and once the login or the signup is completed, it will redirect back to that URL with the SSO cookie set. Then other applications of the same domain will read the SSO cookie that contains a JWT with the user information.
 

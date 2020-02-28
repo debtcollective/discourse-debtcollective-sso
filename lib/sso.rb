@@ -40,14 +40,7 @@ module DebtCollective
     private
 
     def user_avatar_url
-      avatar_url = @user.small_avatar_url
-
-      if @user.uploaded_avatar.present?
-        base_url = Discourse.store.external? ? "#{Discourse.store.absolute_base_url}/" : Discourse.base_url
-        avatar_url = "#{base_url}#{Discourse.store.get_path_for_upload(@user.uploaded_avatar)}"
-      end
-
-      avatar_url
+      @user.avatar_template_url.gsub('{size}', '100')
     end
 
     def user_profile_background_url
@@ -81,7 +74,6 @@ module DebtCollective
         active: @user.active,
         admin: @user.admin?,
         avatar_url: user_avatar_url,
-        card_background_url: user_card_background_url,
         created_at: @user.created_at,
         custom_fields: user_custom_fields,
         email: @user.email,
@@ -90,7 +82,6 @@ module DebtCollective
         last_seen_at: @user.last_seen_at,
         moderator: @user.moderator?,
         name: @user.name,
-        profile_background_url: user_profile_background_url,
         updated_at: @user.updated_at,
         username: @user.username,
       }

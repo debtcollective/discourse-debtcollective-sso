@@ -50,18 +50,6 @@ after_initialize do
           # this method return either a letter avatar or the cdn upload
           sso.avatar_url = current_user.avatar_template_url.gsub('{size}', '100')
 
-          if current_user.user_profile.profile_background_upload.present?
-            sso.profile_background_url = UrlHelper.absolute(upload_cdn_path(
-              current_user.user_profile.profile_background_upload.url
-            ))
-          end
-
-          if current_user.user_profile.card_background_upload.present?
-            sso.card_background_url = UrlHelper.absolute(upload_cdn_path(
-              current_user.user_profile.card_background_upload.url
-            ))
-          end
-
           # return user fields
           sso.custom_fields["user_state"] = current_user.custom_fields.fetch("user_field_1", "").to_s
           sso.custom_fields["user_zip"] = current_user.custom_fields.fetch("user_field_2", "").to_s

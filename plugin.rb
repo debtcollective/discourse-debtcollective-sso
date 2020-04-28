@@ -92,15 +92,23 @@ after_initialize do
     end
 
     def is_valid_return_url?(return_url)
-      return_url = URI.parse(return_url.to_s)
+      invalid_message = 'invalid return_url'
+
+      # parse URL while catching InvalidURI errors
+      begin
+        return_url = URI.parse(return_url.to_s)
+      rescue URI::InvalidURIError
+        return false, invalid_message
+      end
+
       host = return_url.host
 
       if host.blank?
-        return false, "return_url must be a valid URL"
+        return false, invalid_message
       end
 
       if !host.end_with?(request.domain)
-        return false, "return_url must be a valid subdomain"
+        return false, invalid_message
       end
 
       true
@@ -118,13 +126,18 @@ after_initialize do
           @user.enqueue_welcome_message('welcome_user') if @user.send_welcome_message
           log_on_user(@user)
 
+          # CustomWizard plugin has side effect when calling Wizard.user_requires_completion?(@user)
+          # We still need this side effect so the wizard is rendered when the user goes to Discourse for the first time
+          custom_wizard_redirect = Wizard.user_requires_completion?(@user)
+
           # Redirect to SSO signup before Wizards
           if sso_destination_url = cookies[:sso_destination_url]
-            cookies[:sso_destination_url] = nil
+            cookies.delete(:sso_destination_url)
+
             return redirect_to(sso_destination_url)
           end
 
-          if Wizard.user_requires_completion?(@user)
+          if custom_wizard_redirect
             return redirect_to(wizard_path)
           elsif destination_url = cookies[:destination_url]
             cookies[:destination_url] = nil

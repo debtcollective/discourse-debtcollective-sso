@@ -92,15 +92,23 @@ after_initialize do
     end
 
     def is_valid_return_url?(return_url)
-      return_url = URI.parse(return_url.to_s)
+      invalid_message = 'invalid return_url'
+
+      # parse URL while catching InvalidURI errors
+      begin
+        return_url = URI.parse(return_url.to_s)
+      rescue URI::InvalidURIError
+        return false, invalid_message
+      end
+
       host = return_url.host
 
       if host.blank?
-        return false, "return_url must be a valid URL"
+        return false, invalid_message
       end
 
       if !host.end_with?(request.domain)
-        return false, "return_url must be a valid subdomain"
+        return false, invalid_message
       end
 
       true

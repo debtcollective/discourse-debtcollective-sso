@@ -7,19 +7,33 @@
 
 require 'jwt'
 
+enabled_site_setting :enable_debtcollective_sso
+
 def load_files
   [
-    "../config/routes.rb",
     "../lib/sso.rb",
     "../lib/current_user_provider.rb",
-    "../app/controllers/debtcollective_session_controller.rb",
+    "../config/routes.rb",
+    "../app/controllers/debtcollective_sso/application_controller.rb",
+    "../app/controllers/debtcollective_sso/sessions_controller.rb",
   ].each { |path| require File.expand_path(path, __FILE__) }
 end
 
 after_initialize do
+  module ::DebtcollectiveSso
+    PLUGIN_NAME ||= "discourse-debtcollective-sso"
+
+    class Engine < ::Rails::Engine
+      engine_name PLUGIN_NAME
+      isolate_namespace DebtcollectiveSso
+    end
+  end
+
   load_files()
 
-  module DebtcollectiveSessionsExtensions
+  ## Discourse extensions
+  ## TODO: move to other files to clean up plugin.rb
+  module DebtcollectiveSsoSessionsExtensions
     def sso_cookies
       redirect_to path('/login')
     end
@@ -88,7 +102,7 @@ after_initialize do
     def check_current_user
       if current_user
         # regenerate jwt cookie
-        Debtcollective::SSO.new(current_user, cookies).set_jwt_cookie
+        DebtcollectiveSso::SSO.new(current_user, cookies).set_jwt_cookie
 
         # redirect to return_url
         return_url = params[:return_url]
@@ -123,7 +137,7 @@ after_initialize do
     end
   end
 
-  module DebtcollectiveUsersController
+  module DebtcollectiveSsoUsersController
     # Override this method to redirect to url if sso_destination_url cookie is present
     def perform_account_activation
       raise Discourse::InvalidAccess.new if honeypot_or_challenge_fails?(params)
@@ -165,10 +179,10 @@ after_initialize do
   end
 
   if SiteSetting.enable_debtcollective_sso
-    Discourse.current_user_provider = Debtcollective::CurrentUserProvider
+    Discourse.current_user_provider = DebtcollectiveSso::CurrentUserProvider
 
     ::SessionController.class_eval do
-      prepend DebtcollectiveSessionsExtensions
+      prepend DebtcollectiveSsoSessionsExtensions
 
       before_action :check_return_url, only: [:sso_cookies, :sso_cookies_signup]
       before_action :check_current_user, only: [:sso_cookies, :sso_cookies_signup]
@@ -176,7 +190,7 @@ after_initialize do
     end
 
     ::UsersController.class_eval do
-      prepend DebtcollectiveUsersController
+      prepend DebtcollectiveSsoUsersController
     end
   end
 end

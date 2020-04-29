@@ -4,7 +4,11 @@ Discourse::Application.routes.append do
   get "session/sso_cookies" => "session#sso_cookies"
 end
 
+::DebtcollectiveSso::Engine.routes.draw do
+  get "/login" => "sessions#login"
+  get "/signup" => "sessions#signup"
+end
+
 Discourse::Application.routes.prepend do
-  get "/login" => "debtcollective_session#login", as: 'login'
-  get "/signup" => "debtcollective_session#signup", as: 'signup'
+  mount ::DebtcollectiveSso::Engine, at: '/'
 end

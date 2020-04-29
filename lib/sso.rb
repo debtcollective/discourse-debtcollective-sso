@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Debtcollective
+module DebtcollectiveSso
   class SSO
     include GlobalPath
 

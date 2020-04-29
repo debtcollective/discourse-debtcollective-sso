@@ -7,11 +7,19 @@
 
 require 'jwt'
 
-after_initialize do
-  load File.expand_path('../lib/sso.rb', __FILE__)
-  load File.expand_path('../lib/current_user_provider.rb', __FILE__)
+def load_files
+  [
+    "../config/routes.rb",
+    "../lib/sso.rb",
+    "../lib/current_user_provider.rb",
+    "../app/controllers/debtcollective_session_controller.rb",
+  ].each { |path| require File.expand_path(path, __FILE__) }
+end
 
-  module DebtCollectiveSessionController
+after_initialize do
+  load_files()
+
+  module DebtcollectiveSessionsExtensions
     def sso_cookies
       redirect_to path('/login')
     end
@@ -80,7 +88,7 @@ after_initialize do
     def check_current_user
       if current_user
         # regenerate jwt cookie
-        DebtCollective::SSO.new(current_user, cookies).set_jwt_cookie
+        Debtcollective::SSO.new(current_user, cookies).set_jwt_cookie
 
         # redirect to return_url
         return_url = params[:return_url]
@@ -115,7 +123,7 @@ after_initialize do
     end
   end
 
-  module DebtCollectiveUsersController
+  module DebtcollectiveUsersController
     # Override this method to redirect to url if sso_destination_url cookie is present
     def perform_account_activation
       raise Discourse::InvalidAccess.new if honeypot_or_challenge_fails?(params)
@@ -157,10 +165,10 @@ after_initialize do
   end
 
   if SiteSetting.enable_debtcollective_sso
-    Discourse.current_user_provider = DebtCollective::CurrentUserProvider
+    Discourse.current_user_provider = Debtcollective::CurrentUserProvider
 
     ::SessionController.class_eval do
-      prepend DebtCollectiveSessionController
+      prepend DebtcollectiveSessionsExtensions
 
       before_action :check_return_url, only: [:sso_cookies, :sso_cookies_signup]
       before_action :check_current_user, only: [:sso_cookies, :sso_cookies_signup]
@@ -168,12 +176,7 @@ after_initialize do
     end
 
     ::UsersController.class_eval do
-      prepend DebtCollectiveUsersController
-    end
-
-    Discourse::Application.routes.append do
-      get "session/sso_cookies/signup" => "session#sso_cookies_signup"
-      get "session/sso_cookies" => "session#sso_cookies"
+      prepend DebtcollectiveUsersController
     end
   end
 end

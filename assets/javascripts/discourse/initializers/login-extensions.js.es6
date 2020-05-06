@@ -1,6 +1,5 @@
 import { withPluginApi } from 'discourse/lib/plugin-api'
 import LoginRoute from 'discourse/routes/login'
-import { defaultHomepage } from 'discourse/lib/utilities'
 
 export default {
   name: 'tdc-login-route',

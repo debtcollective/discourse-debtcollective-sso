@@ -13,6 +13,7 @@ def load_files
   [
     "../lib/sso.rb",
     "../lib/current_user_provider.rb",
+    "../lib/extensions/static_controller_extensions.rb",
     "../config/routes.rb",
     "../app/controllers/debtcollective_sso/application_controller.rb",
     "../app/controllers/debtcollective_sso/sessions_controller.rb",

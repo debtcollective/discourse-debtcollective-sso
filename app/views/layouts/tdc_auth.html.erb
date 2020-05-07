@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title><%= content_for?(:title) ? yield(:title) : SiteSetting.title %></title>
+  <meta name="description" content="<%= @description_meta || SiteSetting.site_description %>">
+  <meta name="discourse_theme_ids" content="<%= theme_ids&.join(",") %>">
+  <meta name="discourse_current_homepage" content="<%= current_homepage %>">
+  <%= render partial: "layouts/head" %>
+  <%= discourse_csrf_tags %>
+
+  <%= preload_script 'browser-detect' %>
+  <%= preload_script "locales/#{I18n.locale}" %>
+  <%- if ExtraLocalesController.client_overrides_exist? %>
+    <%= preload_script_url ExtraLocalesController.url('overrides') %>
+  <%- end %>
+  <%= preload_script "ember_jquery" %>
+</head>
+
+<body>
+  <p>te amo</p>
+  <main id="auth">
+  </main>
+</body>
+</html>

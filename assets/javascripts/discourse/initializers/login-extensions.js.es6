@@ -8,7 +8,9 @@ export default {
       LoginRoute.reopen({
         renderTemplate() {
           if (this.siteSettings.enable_login_signup_pages) {
-            this.render('tdc-login')
+            this.render('tdc-login', {
+              into: 'tdc-auth-layout',
+            })
           } else {
             this.render('static')
           }

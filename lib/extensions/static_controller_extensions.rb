@@ -64,7 +64,7 @@ module DebtcollectiveSso
       end
 
       if AUTH_PAGES.include?(@page)
-        render html: nil, layout: true
+        render html: nil, layout: "tdc_auth"
         return
       end
 

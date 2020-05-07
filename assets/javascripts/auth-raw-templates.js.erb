@@ -1,0 +1,32 @@
+<%=
+result = ''
+Discourse.unofficial_plugins.each do |plugin|
+  plugin_name = plugin.metadata.name
+
+  if plugin_name == 'discourse-debtcollective-sso'
+
+    files = []
+
+    plugin.each_globbed_asset do |f, is_dir|
+      files.push(f) if f.include? "raw.hbs"
+    end
+
+    Dir.glob("#{Rails.root}/app/assets/javascripts/discourse/templates/*.raw.hbs").each do |f|
+      files.push(f)
+    end
+
+    files.each do |f|
+      name = File.basename(f, ".raw.hbs")
+      compiled = Barber::Precompiler.new().compile(File.read(f))
+      result << "
+        (function() {
+          if ('Auth' in window) {
+            Discourse.RAW_TEMPLATES['javascripts/#{name}'] = requirejs('discourse-common/lib/raw-handlebars').template(#{compiled});
+          }
+        })();
+      "
+    end
+  end
+end
+result
+%>

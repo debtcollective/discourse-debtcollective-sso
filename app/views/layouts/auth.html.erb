@@ -14,12 +14,18 @@
   <%- if ExtraLocalesController.client_overrides_exist? %>
     <%= preload_script_url ExtraLocalesController.url('overrides') %>
   <%- end %>
+
   <%= preload_script "ember_jquery" %>
+  <%= preload_script "auth-namespace" %>
+  <%= preload_script "auth" %>
+
+  <%= render partial: "layouts/head" %>
 </head>
 
 <body>
-  <p>te amo</p>
-  <main id="auth">
-  </main>
+  <p>auth layout</p>
+  <main id="auth"></main>
+
+  <%= preload_script 'auth-raw-templates' %>
 </body>
 </html>

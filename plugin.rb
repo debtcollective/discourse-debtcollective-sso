@@ -2,14 +2,27 @@
 
 # name: discourse-debtcollective-sso
 # about: Extensions to Discourse SSO provider to work the way we need
-# version: 0.0.3
+# version: 0.1
 # authors: @debtcollective
 
 require 'jwt'
 
 enabled_site_setting :enable_debtcollective_sso
 
-def load_files
+def load_assets
+  config = Rails.application.config
+  plugin_asset_path = "#{Rails.root}/plugins/discourse-debtcollective-sso/assets"
+  config.assets.paths << "#{plugin_asset_path}/javascripts"
+
+  if Rails.env.production?
+    config.assets.precompile += %w{
+      auth.js
+      auth-raw-templates.js.erb
+    }
+  end
+end
+
+def load_ruby
   [
     "../lib/sso.rb",
     "../lib/current_user_provider.rb",
@@ -19,6 +32,9 @@ def load_files
     "../app/controllers/debtcollective_sso/sessions_controller.rb",
   ].each { |path| require File.expand_path(path, __FILE__) }
 end
+
+# load assets outside after_initialize block
+load_assets()
 
 after_initialize do
   module ::DebtcollectiveSso
@@ -30,7 +46,8 @@ after_initialize do
     end
   end
 
-  load_files()
+  # load ruby files
+  load_ruby()
 
   ## Discourse extensions
   ## TODO: move to other files to clean up plugin.rb

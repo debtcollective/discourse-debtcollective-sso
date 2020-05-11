@@ -8,10 +8,11 @@
     <meta name="discourse_current_homepage" content="<%= current_homepage %>">
 
     <%= preload_script "ember_jquery" %>
+    <%= preload_script "vendor" %>
+    <%= preload_script "pretty-text-bundle" %>
     <%= preload_script "auth-namespace" %>
     <%= preload_script "auth" %>
 
-    <%= preload_script "pretty-text-bundle" %>
     <%= preload_script "locales/#{I18n.locale}" %>
     <%- if ExtraLocalesController.client_overrides_exist? %>
       <%= preload_script_url ExtraLocalesController.url('overrides') %>

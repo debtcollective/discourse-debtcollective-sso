@@ -1,31 +1,37 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title><%= content_for?(:title) ? yield(:title) : SiteSetting.title %></title>
-  <meta name="description" content="<%= @description_meta || SiteSetting.site_description %>">
-  <meta name="discourse_theme_ids" content="<%= theme_ids&.join(",") %>">
-  <meta name="discourse_current_homepage" content="<%= current_homepage %>">
-  <%= render partial: "layouts/head" %>
-  <%= discourse_csrf_tags %>
+  <head>
+    <meta charset="utf-8">
+    <title><%= content_for?(:title) ? yield(:title) : SiteSetting.title %></title>
+    <meta name="description" content="<%= @description_meta || SiteSetting.site_description %>">
+    <meta name="discourse_theme_ids" content="<%= theme_ids&.join(",") %>">
+    <meta name="discourse_current_homepage" content="<%= current_homepage %>">
 
-  <%= preload_script 'browser-detect' %>
-  <%= preload_script "locales/#{I18n.locale}" %>
-  <%- if ExtraLocalesController.client_overrides_exist? %>
-    <%= preload_script_url ExtraLocalesController.url('overrides') %>
-  <%- end %>
+    <%= preload_script "ember_jquery" %>
+    <%= preload_script "auth-namespace" %>
+    <%= preload_script "auth" %>
 
-  <%= preload_script "ember_jquery" %>
-  <%= preload_script "auth-namespace" %>
-  <%= preload_script "auth" %>
+    <%= preload_script "pretty-text-bundle" %>
+    <%= preload_script "locales/#{I18n.locale}" %>
+    <%- if ExtraLocalesController.client_overrides_exist? %>
+      <%= preload_script_url ExtraLocalesController.url('overrides') %>
+    <%- end %>
 
-  <%= render partial: "layouts/head" %>
+    <%= discourse_csrf_tags %>
+
+    <%= server_plugin_outlet "debtcollective_sso" %>
+
+    <%= render partial: "layouts/head" %>
+
+    <%- unless customization_disabled? %>
+      <%= raw theme_lookup("head_tag") %>
+    <%- end %>
 </head>
+  <body>
+    <p>auth layout</p>
+    <main id="auth"></main>
 
-<body>
-  <p>auth layout</p>
-  <main id="auth"></main>
-
-  <%= preload_script 'auth-raw-templates' %>
-</body>
+    <%= preload_script 'auth-app-boot' %>
+    <%= preload_script 'auth-raw-templates' %>
+  </body>
 </html>

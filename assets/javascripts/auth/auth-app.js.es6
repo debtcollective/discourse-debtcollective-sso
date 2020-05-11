@@ -1,8 +1,5 @@
-import { buildResolver } from 'discourse-common/resolver'
-
 export default Ember.Application.extend({
   rootElement: '#auth',
-  Resolver: buildResolver('auth'),
 
   start() {
     Object.keys(requirejs._eak_seen).forEach((key) => {

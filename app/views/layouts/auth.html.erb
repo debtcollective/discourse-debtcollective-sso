@@ -2,37 +2,23 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title><%= content_for?(:title) ? yield(:title) : SiteSetting.title %></title>
-    <meta name="description" content="<%= @description_meta || SiteSetting.site_description %>">
-    <meta name="discourse_theme_ids" content="<%= theme_ids&.join(",") %>">
-    <meta name="discourse_current_homepage" content="<%= current_homepage %>">
-
-    <%= preload_script "ember_jquery" %>
-    <%= preload_script "vendor" %>
-    <%= preload_script "pretty-text-bundle" %>
-    <%= preload_script "auth-namespace" %>
-    <%= preload_script "auth" %>
-
+    <%= discourse_stylesheet_link_tag :wizard, theme_ids: nil %>
+    <%= preload_script 'ember_jquery' %>
     <%= preload_script "locales/#{I18n.locale}" %>
     <%- if ExtraLocalesController.client_overrides_exist? %>
       <%= preload_script_url ExtraLocalesController.url('overrides') %>
     <%- end %>
 
-    <%= discourse_csrf_tags %>
-
-    <%= server_plugin_outlet "debtcollective_sso" %>
+    <%= preload_script 'auth-vendor' %>
+    <%= preload_script 'auth-application' %>
 
     <%= render partial: "layouts/head" %>
-
-    <%- unless customization_disabled? %>
-      <%= raw theme_lookup("head_tag") %>
-    <%- end %>
-</head>
-  <body>
-    <p>auth layout</p>
+    <%= csrf_meta_tags %>
+    <title><%= content_for?(:title) ? yield(:title) : SiteSetting.title %></title>
+  </head>
+  <body class="auth">
     <main id="auth"></main>
 
-    <%= preload_script 'auth-app-boot' %>
-    <%= preload_script 'auth-raw-templates' %>
+    <%= preload_script 'auth-start' %>
   </body>
 </html>

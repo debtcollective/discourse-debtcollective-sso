@@ -16,8 +16,9 @@ def load_assets
 
   if Rails.env.production?
     config.assets.precompile += %w{
-      auth.js
-      auth-raw-templates.js.erb
+      auth-application.js
+      auth-start.js
+      auth-vendor.js
     }
   end
 end

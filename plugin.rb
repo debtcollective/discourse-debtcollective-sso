@@ -13,12 +13,15 @@ def load_assets
   config = Rails.application.config
   plugin_asset_path = "#{Rails.root}/plugins/discourse-debtcollective-sso/assets"
   config.assets.paths << "#{plugin_asset_path}/javascripts"
+  config.assets.paths << "#{plugin_asset_path}/stylesheets"
 
   if Rails.env.production?
     config.assets.precompile += %w{
       auth-application.js
       auth-start.js
       auth-vendor.js
+      stylesheets/auth/login.scss
+      stylesheets/auth.scss
     }
   end
 end

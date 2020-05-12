@@ -2,12 +2,13 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <%= discourse_stylesheet_link_tag :wizard, theme_ids: nil %>
     <%= preload_script 'ember_jquery' %>
     <%= preload_script "locales/#{I18n.locale}" %>
     <%- if ExtraLocalesController.client_overrides_exist? %>
       <%= preload_script_url ExtraLocalesController.url('overrides') %>
     <%- end %>
+
+    <%= stylesheet_link_tag "auth"%>
 
     <%= preload_script 'auth-vendor' %>
     <%= preload_script 'auth-application' %>
@@ -17,7 +18,7 @@
     <title><%= content_for?(:title) ? yield(:title) : SiteSetting.title %></title>
   </head>
   <body class="auth">
-    <main id="auth"></main>
+    <main class="auth-main" id="auth"></main>
 
     <%= preload_script 'auth-start' %>
   </body>

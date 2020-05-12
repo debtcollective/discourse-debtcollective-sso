@@ -3,7 +3,7 @@ import getUrl from 'discourse-common/lib/get-url'
 import ENV from 'discourse-common/config/environment'
 
 const Router = EmberRouter.extend({
-  rootURL: getUrl('/auth'),
+  rootURL: getUrl('/login'),
   location: ENV.environment === 'test' ? 'none' : 'history',
 })
 

@@ -9,6 +9,6 @@ end
   get "/signup" => "sessions#signup"
 end
 
-Discourse::Application.routes.append do
+Discourse::Application.routes.prepend do
   mount ::DebtcollectiveSso::Engine, at: '/'
 end

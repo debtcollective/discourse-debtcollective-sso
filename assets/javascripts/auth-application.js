@@ -20,4 +20,3 @@
 //= require_tree ./auth/templates
 //= require_tree ./auth/routes
 //= require_tree ./auth/controllers
-//= require_tree ./auth/initializers

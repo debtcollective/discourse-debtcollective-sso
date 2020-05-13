@@ -10,8 +10,10 @@
 
     <%= stylesheet_link_tag "auth"%>
 
+    <%= preload_script 'auth-namespace' %>
     <%= preload_script 'auth-vendor' %>
     <%= preload_script 'auth-application' %>
+    <%= preload_script "pretty-text-bundle" %>
 
     <%= render partial: "layouts/head" %>
     <%= csrf_meta_tags %>

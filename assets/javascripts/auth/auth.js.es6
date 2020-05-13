@@ -19,6 +19,14 @@ export default Application.extend({
         const shortKey = matches[1]
         requirejs._eak_seen[shortKey] = requirejs._eak_seen[key]
       }
+
+      if (/\/initializers\//.test(key)) {
+        const module = requirejs(key, null, null, true)
+        if (!module) {
+          throw new Error(key + ' must export an initializer.')
+        }
+        this.initializer(module.default)
+      }
     })
   },
 })

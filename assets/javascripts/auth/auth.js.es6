@@ -1,5 +1,6 @@
 import { buildResolver } from 'discourse-common/resolver'
 import Application from '@ember/application'
+import { registerHelpers } from 'discourse-common/lib/helpers'
 
 export default Application.extend({
   rootElement: '#auth',
@@ -28,5 +29,20 @@ export default Application.extend({
         this.initializer(module.default)
       }
     })
+
+    this._loadHelpers()
+  },
+
+  // this code was in initializers/load-helpers.js
+  // but helpers are loaded with Discourse for some reason and not isolated when the plugin is required
+  // and this causes issues with the main Discourse app
+  _loadHelpers() {
+    Object.keys(requirejs.entries).forEach((entry) => {
+      if (/\/helpers\//.test(entry)) {
+        requirejs(entry, null, null, true)
+      }
+    })
+
+    registerHelpers(this)
   },
 })

@@ -30,6 +30,7 @@ export default Application.extend({
       }
     })
 
+    this._initSettings()
     this._loadHelpers()
   },
 
@@ -44,5 +45,11 @@ export default Application.extend({
     })
 
     registerHelpers(this)
+  },
+
+  _initSettings() {
+    this.register('site-settings:main', Auth.SiteSettings, {
+      instantiate: false,
+    })
   },
 })

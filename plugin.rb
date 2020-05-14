@@ -9,6 +9,8 @@ require 'jwt'
 
 enabled_site_setting :enable_debtcollective_sso
 
+register_asset 'stylesheets/auth.scss'
+
 def load_assets
   config = Rails.application.config
   plugin_asset_path = "#{Rails.root}/plugins/discourse-debtcollective-sso/assets"
@@ -21,7 +23,6 @@ def load_assets
       auth-application.js
       auth-start.js
       auth-vendor.js
-      stylesheets/auth/login.scss
       stylesheets/auth.scss
     }
   end

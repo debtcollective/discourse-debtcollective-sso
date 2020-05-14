@@ -1,0 +1,65 @@
+// Taken from the Theme
+// TODO: Can we load these from the theme instead?
+
+// Colours
+$beige: #fbfbfb;
+$blue: #03a9f4;
+$gray: #2b2b2b;
+$green: #2dcbad;
+$purple: #dac4f5;
+$red: #ff4630;
+$yellow: #ffed9c;
+$white: #ffffff;
+$light-gray: #ced4da;
+
+$google: #ffffff !default;
+$instagram: #e1306c !default;
+$facebook: #4267b2 !default;
+$cas: #70ba61 !default;
+$twitter: #1da1f2 !default;
+
+// Theme
+$font-family-sans-serif: 'Libre Franklin', sans-serif;
+$font-family-monospace: 'More Gothic Bold', Impact, sans-serif;
+
+$font-size-base: 1rem;
+$font-size-lg: 1rem * 1.25;
+$font-size-sm: 1rem * 0.875;
+$font-size-xs: 1rem * 0.75;
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-bold: 600;
+
+$input-btn-padding-y-lg: 0.75rem;
+$input-btn-padding-x-lg: 1.5rem;
+
+$container-max-widths: (
+  sm: 540px,
+  md: 720px,
+  lg: 960px,
+  xl: 1140px,
+);
+
+$grid-gutter-width: 30px;
+$container-padding-x: $grid-gutter-width / 2;
+
+$body-color: $gray;
+$body-bg: #d8f6ff;
+
+$primary: $red;
+$secondary: $green;
+$success: #28a745;
+$info: #17a2b8;
+$warning: #ffc107;
+$danger: #dc3545;
+$light: #f8f9fa;
+$dark: #3c3c3c;
+
+$card-height: 11rem;
+$btn-action-color: $secondary;
+
+$header-height: 5rem;
+
+$border-radius: 0.25rem !default;
+$border-radius-lg: 0.3rem !default;
+$border-radius-sm: 0.2rem !default;

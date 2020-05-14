@@ -1,0 +1,41 @@
+body {
+  font-family: $font-family-sans-serif;
+}
+
+.dc-heading {
+  font-size: 2rem;
+}
+
+.dc-display {
+  font-size: 5rem;
+  font-family: $font-family-monospace;
+}
+
+@mixin dc-text-light($size: inherit) {
+  font-weight: 300;
+  font-size: $size;
+}
+
+.dc-text-body {
+  font-size: $font-size-base;
+  color: $body-color;
+}
+
+.dc-text-light {
+  @include dc-text-light;
+}
+
+.dc-text-primary {
+  color: $primary;
+}
+
+.dc-text-small {
+  font-size: $font-size-sm;
+}
+
+.dc-inline-icons {
+  $icon-correction: 2px;
+  font-size: $font-size-base;
+  position: relative;
+  top: $icon-correction;
+}

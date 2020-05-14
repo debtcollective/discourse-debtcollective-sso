@@ -1,0 +1,74 @@
+.btn {
+  background: $green;
+  border-radius: 0.625rem;
+  border: none;
+  box-sizing: border-box;
+  color: #fff;
+  cursor: pointer;
+  display: block;
+  font-size: 1em;
+  font-weight: normal;
+  line-height: 1;
+  margin: 0;
+  min-height: 40px;
+  padding: 6px 12px;
+  text-align: center;
+  transition: background 0.25s;
+  padding-right: 2.5rem;
+  padding-left: 2.5rem;
+
+  &:hover {
+    background: darken($green, 5%);
+  }
+}
+
+.btn-action {
+  width: 100%;
+}
+
+.btn-social {
+  padding-right: 2.5rem;
+  padding-left: 2.5rem;
+
+  .d-icon {
+    height: 1.5rem;
+    width: 1.5rem;
+    color: #fff;
+  }
+  color: #fff;
+  background: #666;
+  &:hover {
+    color: #fff;
+  }
+  &[href] {
+    color: $secondary;
+  }
+  &:before {
+    margin-right: 9px;
+  }
+  &.google_oauth2 {
+    background: $google;
+    color: #333;
+    border: 1px solid $gray;
+    // non-FA SVG icon for Google in login-buttons.hbs
+    .d-icon {
+      opacity: 0.9;
+    }
+    &:hover {
+      color: currentColor;
+      background: darken($google, 5%);
+    }
+  }
+  &.facebook {
+    background: $facebook;
+    &:hover {
+      background: darken($facebook, 15%);
+    }
+  }
+  &.twitter {
+    background: $twitter;
+    &:hover {
+      background: darken($twitter, 10%);
+    }
+  }
+}

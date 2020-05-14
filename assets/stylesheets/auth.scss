@@ -1,2 +1,115 @@
-@import './auth/base.scss';
-@import './auth/login.scss';
+@import 'common/components/svg';
+@import './variables';
+@import './type';
+@import './buttons';
+@import './forms';
+
+html {
+  height: 100%;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+body {
+  height: 100%;
+  background: linear-gradient(180deg, #dbf8ff 0%, #fcfbf7 88.74%);
+}
+
+.auth-main {
+  height: 100%;
+
+  > .ember-view {
+    height: 100%;
+  }
+}
+
+.auth-container {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  max-width: 440px;
+  margin: 0 auto;
+  padding-top: 2rem;
+}
+
+.auth-header {
+  text-align: center;
+
+  .auth-logo {
+    height: 80px;
+  }
+}
+
+.auth-social-media {
+  display: flex;
+  justify-content: space-between;
+}
+
+.auth-divider {
+  width: 100%;
+  text-align: center;
+  margin: 2.5rem 0;
+  height: 0px;
+
+  hr {
+    margin: 0;
+  }
+
+  small {
+    position: relative;
+    background: white;
+    padding: 0 1rem;
+    top: -12px;
+  }
+}
+
+.auth-form {
+  box-shadow: 0 0.125rem 0.125rem rgba(0, 0, 0, 0.25);
+  background: white;
+  padding: 2rem;
+  width: 100%;
+  border-radius: 4px;
+}
+
+.auth-body {
+  margin-bottom: 2rem;
+}
+
+// forms
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: $light-gray;
+
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}

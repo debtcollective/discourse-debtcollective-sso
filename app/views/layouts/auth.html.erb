@@ -18,9 +18,16 @@
     <%= render partial: "layouts/head" %>
     <%= csrf_meta_tags %>
     <title><%= content_for?(:title) ? yield(:title) : SiteSetting.title %></title>
+
   </head>
   <body class="auth">
     <main class="auth-main" id="auth"></main>
+
+    <div id="svg-sprites" style="display:none;">
+      <div class="fontawesome">
+        <%= raw SvgSprite.bundle %>
+      </div>
+    </div>
 
     <%= preload_script 'auth-start' %>
   </body>

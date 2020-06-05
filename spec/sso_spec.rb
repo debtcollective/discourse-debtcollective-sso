@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe DebtCollective::SSO do
+describe Debtcollective::SSO do
   class FakeCookieStore < Hash
     def delete(key, opts = {})
       self[key] = nil
@@ -19,7 +19,7 @@ describe DebtCollective::SSO do
 
   it '#generate_jwt' do
     cookies = FakeCookieStore.new
-    sso = DebtCollective::SSO.new(user, cookies)
+    sso = Debtcollective::SSO.new(user, cookies)
 
     jwt = sso.generate_jwt
 
@@ -28,7 +28,7 @@ describe DebtCollective::SSO do
 
   it '#set_jwt_cookie' do
     cookies = FakeCookieStore.new
-    sso = DebtCollective::SSO.new(user, cookies)
+    sso = Debtcollective::SSO.new(user, cookies)
 
     sso.set_jwt_cookie
 
@@ -38,7 +38,7 @@ describe DebtCollective::SSO do
   it '#remove_jwt_cookie' do
     cookies = FakeCookieStore.new
     cookies[SiteSetting.sso_cookie_name] = 'remove-me'
-    sso = DebtCollective::SSO.new(user, cookies)
+    sso = Debtcollective::SSO.new(user, cookies)
 
     sso.remove_jwt_cookie
 

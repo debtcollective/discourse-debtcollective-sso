@@ -7,7 +7,7 @@ module Debtcollective
       if current_user.present?
         if SiteSetting.enable_sso_provider && payload = cookies.delete(:sso_payload)
           return redirect_to(session_sso_provider_url + "?" + payload)
-        if sso_destination_url = cookies.delete(:sso_destination_url)
+        elsif sso_destination_url = cookies.delete(:sso_destination_url)
           return redirect_to(sso_destination_url)
         elsif destination_url = cookies.delete(:destination_url)
           return redirect_to(destination_url)

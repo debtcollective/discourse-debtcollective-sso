@@ -1,4 +1,4 @@
-# frozen_string_literal: true
+# https://github.com/discourse/discourse/blob/master/app/controllers/users/omniauth_callbacks_controller.rb
 module Debtcollective
   module Users
     module OmniauthCallbacksController
@@ -61,8 +61,6 @@ module Debtcollective
             value: @auth_result.to_client_hash.to_json,
             path: Discourse.base_uri("/")
           }
-
-          binding.pry
 
           # DC modification
           # Here we check if there's an authenticated user and a sso_redirect_url

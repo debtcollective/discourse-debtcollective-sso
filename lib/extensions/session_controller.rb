@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# https://github.com/discourse/discourse/blob/master/app/controllers/session_controller.rb
 module Debtcollective
   module SessionController
     def sso_cookies

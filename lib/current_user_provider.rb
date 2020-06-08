@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
-module DebtCollective
+module Debtcollective
   class CurrentUserProvider < ::Auth::DefaultCurrentUserProvider
     def log_on_user(user, session, cookies, opts = {})
       super(user, session, cookies, opts)
 
-      DebtCollective::SSO.new(user, cookies).set_jwt_cookie
+      Debtcollective::SSO.new(user, cookies).set_jwt_cookie
     end
 
     def log_off_user(session, cookies)
       super(session, cookies)
 
-      DebtCollective::SSO.new(current_user, cookies).remove_jwt_cookie
+      Debtcollective::SSO.new(current_user, cookies).remove_jwt_cookie
     end
 
     def refresh_session(user, session, cookies)
@@ -31,7 +31,7 @@ module DebtCollective
             cookies[TOKEN_COOKIE] = cookie_hash(@user_token.unhashed_auth_token)
 
             # extend to set jwt cookie when refreshing session
-            DebtCollective::SSO.new(user, cookies).set_jwt_cookie
+            Debtcollective::SSO.new(user, cookies).set_jwt_cookie
           end
         end
       end
@@ -40,7 +40,7 @@ module DebtCollective
         cookies.delete(TOKEN_COOKIE)
 
         # extend to remove jwt cookie
-        DebtCollective::SSO.new(current_user, cookies).remove_jwt_cookie
+        Debtcollective::SSO.new(current_user, cookies).remove_jwt_cookie
       end
     end
   end

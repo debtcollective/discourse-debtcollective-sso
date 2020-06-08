@@ -18,11 +18,11 @@ To login or signup, other applications will redirect to either of these endpoint
 In development, you will need to run the Discourse server with some special configuration
 
 ```bash
-env DISCOURSE_ENABLE_CORS=true DISCOURSE_DEV_HOST=lvh.me DISCOURSE_SSO_JWT_SECRET=jwt-secret rails s
+env DISCOURSE_ENABLE_CORS=true DISCOURSE_DEV_HOSTS=lvh.me DISCOURSE_SSO_JWT_SECRET=jwt-secret rails s
 ```
 
 - `DISCOURSE_ENABLE_CORS=true` allow other apps to make CORS request to Discourse. We use this to be able to logout users from other apps
-- `DISCOURSE_DEV_HOST=lvh.me` use a custom domain to make cookies to work. `lvh.me` redirects all traffic to 127.0.0.1
+- `DISCOURSE_DEV_HOSTS=lvh.me` use a custom domain to make cookies to work. `lvh.me` redirects all traffic to 127.0.0.1
 - `DISCOURSE_SSO_JWT_SECRET=jwt-secret` this is encryption key for the the JWT cookie. Use the same value between applications
 
 In envs different than development, these variables will be set in the configuration file.

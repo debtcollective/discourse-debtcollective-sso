@@ -20,7 +20,7 @@ module Debtcollective
       @message = session['user_created_message'] || I18n.t('activation.missing_session')
       @account_created = { message: @message, show_controls: false }
 
-      if session_user_id = session[SessionController::ACTIVATE_USER_KEY]
+      if session_user_id = session[::SessionController::ACTIVATE_USER_KEY]
         if user = User.where(id: session_user_id.to_i).first
           @account_created[:username] = user.username
           @account_created[:email] = user.email

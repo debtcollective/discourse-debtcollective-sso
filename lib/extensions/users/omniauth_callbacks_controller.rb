@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # https://github.com/discourse/discourse/blob/master/app/controllers/users/omniauth_callbacks_controller.rb
 module Debtcollective
   module Users
@@ -14,7 +15,7 @@ module Debtcollective
         if session.delete(:auth_reconnect) && authenticator.can_connect_existing_user? && current_user
           # Save to redis, with a secret token, then redirect to confirmation screen
           token = SecureRandom.hex
-          Discourse.redis.setex "#{Users::AssociateAccountsController::REDIS_PREFIX}_#{current_user.id}_#{token}", 10.minutes, auth.to_json
+          Discourse.redis.setex "#{::Users::AssociateAccountsController::REDIS_PREFIX}_#{current_user.id}_#{token}", 10.minutes, auth.to_json
           return redirect_to Discourse.base_uri("/associate/#{token}")
         else
           @auth_result = authenticator.after_authenticate(auth)

@@ -1,1 +1,8 @@
 en:
+  admin_js:
+    admin:
+      user_fields:
+        field_types:
+          phone-number: 'US - Phone Number'
+          zip-code: 'US - Zip Code'
+          state: 'US - State'

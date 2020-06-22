@@ -5,16 +5,17 @@
 # version: 1.0.0
 # authors: @debtcollective
 
-require 'jwt'
-
 def load_plugin
   %w[
     ../config/routes.rb
     ../lib/sso.rb
     ../lib/current_user_provider.rb
+    ../lib/algolia_places_client.rb
     ../lib/extensions/session_controller.rb
     ../lib/extensions/users_controller.rb
     ../lib/extensions/users/omniauth_callbacks_controller.rb
+    ../lib/services/base_service.rb
+    ../lib/services/user_profile_service.rb
   ].each do |path|
     load File.expand_path(path, __FILE__)
   end

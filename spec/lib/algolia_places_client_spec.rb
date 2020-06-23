@@ -27,6 +27,7 @@ describe Debtcollective::AlgoliaPlacesClient do
       expect(json[:country_code]).to eq('us')
       expect(json[:city]).to eq('Canton')
       expect(json[:state]).to eq('New York')
+      expect(json[:county]).to eq('Saint Lawrence County')
       expect(json[:postcodes]).to include('13617')
     end
 
@@ -54,6 +55,7 @@ describe Debtcollective::AlgoliaPlacesClient do
       expect(json[:country_code]).to eq('us')
       expect(json[:city]).to eq('San Francisco')
       expect(json[:state]).to eq('California')
+      expect(json[:county]).to eq('San Francisco City and County')
       expect(json[:postcodes]).to include('94115')
     end
 

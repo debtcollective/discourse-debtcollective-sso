@@ -38,7 +38,7 @@ module Debtcollective
         city: result['city']['default'].first,
         country: result['country']['default'],
         country_code: result['country_code'],
-        county: result['country']['default'].first,
+        county: result['county']['default'].first,
         objectID: result['objectID'],
         geoloc: result['_geoloc'],
         postcodes: result['postcode'],

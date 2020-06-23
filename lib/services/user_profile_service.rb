@@ -54,7 +54,7 @@ module Debtcollective
     def self.set_user_field_value_by_name(user, field_name, value)
       field = UserField.find_by(name: field_name)
 
-      user.user_fields[field.id.to_s] = value if field
+      user.custom_fields["user_field_#{field.id}"] = value if field
     end
   end
 end

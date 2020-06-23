@@ -36,6 +36,7 @@ describe Debtcollective::UserProfileService do
       }).to_return(status: 200, body: query_response, headers: {})
 
       Debtcollective::UserProfileService.add_user_location_data(@user)
+      @user.reload
       tdc_user_location = JSON.parse(@user.custom_fields['tdc_user_location'])
 
       expect(tdc_user_location['state']).to eq('New York')

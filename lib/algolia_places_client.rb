@@ -19,7 +19,10 @@ module Debtcollective
       when Net::HTTPSuccess then
         success_response(response)
       else
-        # TODO: track error with sentry?
+        if Module.const_defined?('Raven')
+          Raven.capture_message("Error while making Algolia Places request", extra: { status: response.status, body: response.body })
+        end
+
         nil
       end
     end
@@ -39,10 +42,10 @@ module Debtcollective
         country_code: result['country_code'],
         county: result['country']['default'].first,
         objectID: result['objectID'],
+        geoloc: result['_geoloc'],
         postcodes: result['postcode'],
         state: result['administrative'].first
-      }
-
+      }.with_indifferent_access
     end
 
     def self.headers

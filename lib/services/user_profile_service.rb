@@ -3,21 +3,31 @@ module Debtcollective
   class UserProfileService
     include BaseService
 
-    def self.extend_user_profile(user)
-      # get_address_info(user.zip)
-      # update user fields with address info (city, state and other useful info)
-      # add_user_to_state group
+    def self.execute(user)
+      add_user_location_data(user)
+      add_user_to_state_group(user)
     end
 
-    def self.get_address_info(zip: null)
-      # from zip code get
-      # - state
-      # - city
-      { state: 'valid state', city: 'valid city' }
+    def self.add_user_location_data(user)
+      # Zip code is set on signup
+      zip_code = user_field_value_by_name(user, 'Zip Code')
+      location = AlgoliaPlacesClient.query(zip_code)
+
+      return if location.nil?
+
+      # update user fields with address info (city and state)
+      set_user_field_value_by_name(user, 'State', location["state"])
+      set_user_field_value_by_name(user, 'City', location["city"])
+
+      # we will store the rest of the info we have as custom fields
+      location['zip_code'] = zip_code
+      # this data will be stored as JSON, we need parse it to have a ruby hash
+      user.custom_fields['tdc_user_location'] = location
+      user.save
     end
 
-    def self.add_user_to_group(user)
-      state = user.custom_fields['user_field_1']
+    def self.add_user_to_state_group(user)
+      state = user_field_value_by_name(user, 'State')
 
       return if state.nil?
 
@@ -31,6 +41,20 @@ module Debtcollective
 
       group.add(user)
       group.save
+    end
+
+    private
+
+    def self.user_field_value_by_name(user, field_name)
+      field = UserField.find_by(name: field_name)
+
+      user.user_fields.fetch(field.id.to_s, "") if field
+    end
+
+    def self.set_user_field_value_by_name(user, field_name, value)
+      field = UserField.find_by(name: field_name)
+
+      user.user_fields[field.id.to_s] = value if field
     end
   end
 end

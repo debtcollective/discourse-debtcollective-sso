@@ -47,4 +47,29 @@ describe Debtcollective::UserProfileService do
       expect(@user.user_fields[@city_user_field.id.to_s]).to eq('Canton')
     end
   end
+
+  describe "#add_user_to_state_group" do
+    it 'adds user to specific group given their US state' do
+      # create user custom field
+      user_field = UserField.create({
+        name: "State",
+        description: "State",
+        field_type: "state",
+        required: true,
+        editable: true,
+        show_on_profile: false,
+        show_on_user_card: false,
+      })
+      # create New York group
+      state = "New York"
+      group = Fabricate(:group, name: "NewYork", full_name: "New York members")
+      # create user with State == New York
+      user = Fabricate(:user, custom_fields: { "user_field_#{user_field.id}": state })
+
+      Debtcollective::UserProfileService.add_user_to_state_group(user)
+
+      group.reload
+      expect(group.users).to include(user)
+    end
+  end
 end

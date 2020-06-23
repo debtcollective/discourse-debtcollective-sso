@@ -26,5 +26,9 @@ after_initialize do
     load_plugin()
 
     Discourse.current_user_provider = Debtcollective::CurrentUserProvider
+
+    DiscourseEvent.on(:user_created) do |user|
+      Debtcollective::UserProfileService.execute(user)
+    end
   end
 end

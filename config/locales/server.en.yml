@@ -1,3 +1,5 @@
 en:
   site_settings:
-    enable_debtcollective_sso: "Enable debtcollective-sso plugin"
+    enable_debtcollective_sso: 'Enable debtcollective-sso plugin'
+    debtcollective_algolia_app_id: 'Algolia Places App ID'
+    debtcollective_algolia_api_key: 'Algolia Places API key'

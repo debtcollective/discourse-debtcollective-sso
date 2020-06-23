@@ -19,9 +19,7 @@ module Debtcollective
       when Net::HTTPSuccess then
         success_response(response)
       else
-        if Module.const_defined?('Raven')
-          Raven.capture_message("Error while making Algolia Places request", extra: { status: response.status, body: response.body })
-        end
+        Raven.capture_message("Error while making Algolia Places request", extra: { status: response.status, body: response.body }) if defined?(Raven)
 
         nil
       end

@@ -5,12 +5,18 @@ module Debtcollective
     # Add redirection to sso_destination_url if avaiable
     def account_created
       if current_user.present?
+        # CustomWizard plugin has side effect when calling Wizard.user_requires_completion?(@user)
+        # We still need this side effect so the wizard is rendered when the user goes to Discourse for the first time
+        custom_wizard_redirect = Wizard.user_requires_completion?(current_user)
+
         if SiteSetting.enable_sso_provider && payload = cookies.delete(:sso_payload)
           return redirect_to(session_sso_provider_url + "?" + payload)
         elsif sso_destination_url = cookies.delete(:sso_destination_url)
           return redirect_to(sso_destination_url)
         elsif destination_url = cookies.delete(:destination_url)
           return redirect_to(destination_url)
+        elsif custom_wizard_redirect
+          redirect_to(wizard_path)
         else
           return redirect_to(path('/'))
         end

@@ -7,6 +7,7 @@
 
 def load_plugin
   %w[
+    ../lib/engine.rb
     ../config/routes.rb
     ../lib/sso.rb
     ../lib/current_user_provider.rb
@@ -18,12 +19,13 @@ def load_plugin
     ../lib/services/base_service.rb
     ../lib/services/user_profile_service.rb
     ../app/jobs/extend_user_profile.rb
+    ../app/controllers/collectives_controller.rb
   ].each do |path|
     load File.expand_path(path, __FILE__)
   end
 end
 
-def custom_wizard_extensions
+def custom_wizard_init
   # welcome wizard step handler
   # we only process the 'debt_types' step
   ::CustomWizard::Builder.add_step_handler('welcome') do |builder|
@@ -51,10 +53,24 @@ def custom_wizard_extensions
   end
 end
 
+def collectives_init
+  Category.register_custom_field_type("tdc_is_collective", :boolean)
+  Site.preloaded_category_custom_fields << "tdc_is_collective" if Site.respond_to? :preloaded_category_custom_fields
+
+  add_to_serializer(:basic_category, :tdc_is_collective) do
+    !!object.custom_fields["tdc_is_collective"]
+  end
+
+  add_to_serializer(:basic_category, :tdc_collective_group) do
+    object.groups.where.not(id: Group::AUTO_GROUPS.values).first
+  end
+end
+
 after_initialize do
   if SiteSetting.enable_debtcollective_sso
     load_plugin()
-    custom_wizard_extensions()
+    custom_wizard_init()
+    collectives_init()
 
     Discourse.current_user_provider = Debtcollective::CurrentUserProvider
 

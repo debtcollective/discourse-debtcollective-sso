@@ -16,3 +16,9 @@ plugins:
   debtcollective_algolia_api_key:
     default: ''
     shadowed_by_global: true
+  debtcollective_solidarity_message_author:
+    default: "system"
+    client: false
+  debtcollective_solidarity_message_title:
+    default: "Solidarity Bloc"
+    client: false

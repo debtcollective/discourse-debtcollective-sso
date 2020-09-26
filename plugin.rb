@@ -69,8 +69,9 @@ end
 after_initialize do
   if SiteSetting.enable_debtcollective_sso
     load_plugin()
-    custom_wizard_init()
     collectives_init()
+
+    custom_wizard_init() if Module.const_defined?(:CustomWizard)
 
     Discourse.current_user_provider = Debtcollective::CurrentUserProvider
 

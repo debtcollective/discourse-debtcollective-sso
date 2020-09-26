@@ -26,3 +26,14 @@ env DISCOURSE_ENABLE_CORS=true DISCOURSE_DEV_HOSTS=lvh.me DISCOURSE_SSO_JWT_SECR
 - `DISCOURSE_SSO_JWT_SECRET=jwt-secret` this is encryption key for the the JWT cookie. Use the same value between applications
 
 In envs different than development, these variables will be set in the configuration file.
+
+## Rebuilding assets on the server
+
+There are cases where want to restart the server in order to see changes. Do to this you need to
+
+1. Get inside the server.
+1. Go to the discourse folder. `cd /opt/discourse`
+1. Get into the Discourse docker container. `./launcher enter web`
+1. Stop unicorn. `sv stop unicorn`
+1. Compile new assets `su discourse -c 'bundle exec rake assets:precompile'`
+1. Start unicorn. `sv start unicorn`

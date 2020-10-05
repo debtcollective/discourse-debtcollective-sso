@@ -3,3 +3,5 @@ en:
     enable_debtcollective_sso: 'Enable debtcollective-sso plugin'
     debtcollective_algolia_app_id: 'Algolia Places App ID'
     debtcollective_algolia_api_key: 'Algolia Places API key'
+    debtcollective_algolia_api_key: 'Algolia Places API key'
+    debtcollective_redirect_url_after_accept_invitation: 'Redirect URL after user accepts an invite. ex https://debtcollective.org/hub'

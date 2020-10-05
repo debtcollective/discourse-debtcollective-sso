@@ -15,6 +15,7 @@ def load_plugin
     ../lib/custom_wizard.rb
     ../lib/extensions/session_controller.rb
     ../lib/extensions/users_controller.rb
+    ../lib/extensions/invites_controller.rb
     ../lib/extensions/users/omniauth_callbacks_controller.rb
     ../lib/services/base_service.rb
     ../lib/services/user_profile_service.rb

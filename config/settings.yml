@@ -17,8 +17,11 @@ plugins:
     default: ''
     shadowed_by_global: true
   debtcollective_solidarity_message_author:
-    default: "system"
+    default: 'system'
     client: false
   debtcollective_solidarity_message_title:
-    default: "Solidarity Bloc"
+    default: 'Solidarity Bloc'
+    client: false
+  debtcollective_redirect_url_after_accept_invitation:
+    default: 'http://lvh.me:8000/hub'
     client: false

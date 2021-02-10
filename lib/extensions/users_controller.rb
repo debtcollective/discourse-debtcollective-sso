@@ -103,8 +103,6 @@ module Debtcollective
         return fail_with("login.wrong_invite_code")
       end
 
-      binding.pry
-
       # Generate username if it's empty and it's an API call
       # We use to create user accounts from the Membership app
       if is_api? && params[:username].blank?
@@ -193,12 +191,22 @@ module Debtcollective
         # add them to the review queue if they need to be approved
         user.activate if user.active?
 
-        render json: {
+        response = {
           success: true,
           active: user.active?,
           message: activation.message,
           user_id: user.id
         }
+
+        if is_api?
+          # Create a signin link to be used by the
+          binding.pry
+          email_token = user.email_tokens.create!(email: user.email)
+
+          response[:email_token] = email_token.token
+        end
+
+        render json: response
       elsif SiteSetting.hide_email_address_taken && user.errors[:primary_email]&.include?(I18n.t('errors.messages.taken'))
         session["user_created_message"] = activation.success_message
 

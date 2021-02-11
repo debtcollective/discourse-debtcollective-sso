@@ -82,7 +82,7 @@ module Debtcollective
 
           response = { success: 'OK' }
 
-          redirect_to = SiteSetting.debtcollective_redirect_url_after_signup
+          redirect_to = SiteSetting.debtcollective_after_signup_redirect_url
           response[:redirect_to] = redirect_to if redirect_to.present? && !user.seen_before?
 
           return render json: response

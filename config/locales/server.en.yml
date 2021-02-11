@@ -4,4 +4,4 @@ en:
     debtcollective_algolia_app_id: 'Algolia Places App ID'
     debtcollective_algolia_api_key: 'Algolia Places API key'
     debtcollective_algolia_api_key: 'Algolia Places API key'
-    debtcollective_redirect_url_after_signup: 'Redirect URL after user accepts an invite. ex https://debtcollective.org/hub'
+    debtcollective_after_signup_redirect_url: 'Redirect URL after user accepts an invite. ex https://debtcollective.org/hub'

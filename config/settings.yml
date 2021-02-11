@@ -22,6 +22,6 @@ plugins:
   debtcollective_solidarity_message_title:
     default: "Solidarity Bloc"
     client: false
-  debtcollective_redirect_url_after_signup:
+  debtcollective_after_signup_redirect_url:
     default: "https://debtcollective.org/hub"
     client: true

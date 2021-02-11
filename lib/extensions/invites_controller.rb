@@ -31,7 +31,7 @@ module Debtcollective
 
             # If this is a new user or first login, redirect
             # we only set it if topic invite is nil
-            redirect_to = SiteSetting.debtcollective_redirect_url_after_signup
+            redirect_to = SiteSetting.debtcollective_after_signup_redirect_url
             if (user.new_user? || !user.seen_before?) && redirect_to.present? && topic.blank?
               response[:redirect_to] = redirect_to
             end

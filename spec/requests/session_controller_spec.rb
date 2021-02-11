@@ -41,7 +41,7 @@ describe "Sessions" do
     it "redirects to after_signup_path if it's the first login" do
       user = Fabricate(:user)
       email_token = user.email_tokens.create!(email: user.email)
-      SiteSetting.debtcollective_redirect_url_after_signup = "https://example.com"
+      SiteSetting.debtcollective_after_signup_redirect_url = "https://example.com"
 
       post "/session/email-login/#{email_token.token}", headers: { "ACCEPT" => "application/json" }
       json = JSON.parse(response.body)

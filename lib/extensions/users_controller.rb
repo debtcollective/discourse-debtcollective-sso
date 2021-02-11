@@ -199,8 +199,7 @@ module Debtcollective
         }
 
         if is_api?
-          # Create a signin link to be used by the
-          binding.pry
+          # Create a signin link to be used to login the user for the first time.
           email_token = user.email_tokens.create!(email: user.email)
 
           response[:email_token] = email_token.token

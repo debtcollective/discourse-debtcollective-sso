@@ -59,6 +59,39 @@ module Debtcollective
       end
     end
 
+    # We override this method to make the redirection on the first login
+    def email_login
+      token = params[:token]
+      matched_token = EmailToken.confirmable(token)
+      user = matched_token&.user
+
+      check_local_login_allowed(user: user, check_login_via_email: true)
+
+      if user.present? && !authenticate_second_factor(user)
+        return render(json: @second_factor_failure_payload)
+      end
+
+      if user = EmailToken.confirm(token)
+        if login_not_approved_for?(user)
+          return render json: login_not_approved
+        elsif payload = login_error_check(user)
+          return render json: payload
+        else
+          user.update_timezone_if_missing(params[:timezone])
+          log_on_user(user)
+
+          response = { success: 'OK' }
+
+          redirect_to = SiteSetting.debtcollective_redirect_url_after_signup
+          response[:redirect_to] = redirect_to if redirect_to.present? && !user.seen_before?
+
+          return render json: response
+        end
+      end
+
+      render json: { error: I18n.t('email_login.invalid_token') }
+    end
+
     private
 
     def check_return_url

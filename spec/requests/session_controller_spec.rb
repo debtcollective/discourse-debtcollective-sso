@@ -36,4 +36,19 @@ describe "Sessions" do
       expect(response).to redirect_to('/signup')
     end
   end
+
+  describe 'GET email_login' do
+    it "redirects to after_signup_path if it's the first login" do
+      user = Fabricate(:user)
+      email_token = user.email_tokens.create!(email: user.email)
+      SiteSetting.debtcollective_after_signup_redirect_url = "https://example.com"
+
+      post "/session/email-login/#{email_token.token}", headers: { "ACCEPT" => "application/json" }
+      json = JSON.parse(response.body)
+
+      expect(json["success"]).to eq("OK")
+      expect(json["redirect_to"]).to eq("https://example.com")
+      expect(response.status).to eq(200)
+    end
+  end
 end

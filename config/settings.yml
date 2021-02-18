@@ -2,26 +2,26 @@ plugins:
   enable_debtcollective_sso:
     default: true
   sso_cookie_domain:
-    default: '.lvh.me'
+    default: ".lvh.me"
     shadowed_by_global: true
   sso_cookie_name:
-    default: 'tdc_auth_token'
+    default: "tdc_auth_token"
     shadowed_by_global: true
   sso_jwt_secret:
-    default: 'changeme'
+    default: "changeme"
     shadowed_by_global: true
   debtcollective_algolia_app_id:
-    default: ''
+    default: ""
     shadowed_by_global: true
   debtcollective_algolia_api_key:
-    default: ''
+    default: ""
     shadowed_by_global: true
   debtcollective_solidarity_message_author:
-    default: 'system'
+    default: "system"
     client: false
   debtcollective_solidarity_message_title:
-    default: 'Solidarity Bloc'
+    default: "Solidarity Bloc"
     client: false
-  debtcollective_redirect_url_after_accept_invitation:
-    default: 'http://lvh.me:8000/hub'
-    client: false
+  debtcollective_after_signup_redirect_url:
+    default: "https://debtcollective.org/hub"
+    client: true

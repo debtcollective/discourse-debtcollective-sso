@@ -4,55 +4,84 @@ require 'uri'
 
 module Debtcollective
   class AlgoliaPlacesClient
-    # Returns JSON response or nil
-    def self.query(query, options = { type: "address", "restrictSearchableAttributes": "postcode", hitsPerPage: 1 })
-      payload = { query: query }.merge(options)
-      api_url = 'https://places-dsn.algolia.net/1/places/query'
+    class << self
+      QUERY_DEFAULT_OPTIONS = {type: "address", "restrictSearchableAttributes": "postcode", hitsPerPage: 1}
 
-      response = Net::HTTP.post(
-        URI(api_url),
-        payload.to_json,
-        self.headers
-      )
+      # Returns JSON response or nil
+      def query(query, options = QUERY_DEFAULT_OPTIONS)
+        options = QUERY_DEFAULT_OPTIONS.merge(options)
+        payload = {query: query}.merge(options)
+        api_url = "https://places-dsn.algolia.net/1/places/query"
 
-      case response
-      when Net::HTTPSuccess then
-        success_response(response)
-      else
-        Raven.capture_message("Error while making Algolia Places request", extra: { status: response.status, body: response.body }) if defined?(Raven)
+        response = Net::HTTP.post(
+          URI(api_url),
+          payload.to_json,
+          headers
+        )
 
-        nil
+        case response
+        when Net::HTTPSuccess
+          success_response(response)
+        else
+          Raven.capture_message("Error while making Algolia Places request", extra: {status: response.status, body: response.body}) if defined?(Raven)
+
+          nil
+        end
       end
-    end
 
-    private
+      private
 
-    def self.success_response(response)
-      body = response.body
-      json = JSON.parse(body)
+      def success_response(response)
+        body = response.body
+        json = JSON.parse(body)
 
-      # We return the first result
-      result = json['hits'].first
+        # Algolia limits some queries due server capacity
+        # This probably is related to the upcoming deprecation of Places
+        # https://www.algolia.com/blog/product/sunseting-our-places-feature/
+        degraded_query = json["degradedQuery"]
+        result = json["hits"].first
 
-      {
-        city: result['city']['default'].first,
-        country: result['country']['default'],
-        country_code: result['country_code'],
-        county: result['county']['default'].first,
-        objectID: result['objectID'],
-        geoloc: result['_geoloc'],
-        postcodes: result['postcode'],
-        state: result['administrative'].first
-      }.with_indifferent_access
-    end
+        if degraded_query && result.blank?
+          return {degraded_query: true}.with_indifferent_access
+        end
 
-    def self.headers
-      {
-        accept: "application/json",
-        "Content-Type": "application/json",
-        "X-Algolia-Application-Id": SiteSetting.debtcollective_algolia_app_id,
-        "X-Algolia-API-Key": SiteSetting.debtcollective_algolia_api_key
-      }
+        # no results, return gracefully
+        return if result.blank?
+
+        # Algolia return postcode results as an array of string or as an array of objects
+        # we handle the two cases here.
+        #
+        # Also, the value can return unsanitized HTML
+        postcodes = result["postcode"]
+
+        postcodes = postcodes.map do |postcode|
+          if postcode && postcode.is_a?(Hash)
+            postcode = ActionView::Base.full_sanitizer.sanitize(postcode["value"])
+          else
+            postcode
+          end
+        end
+
+        {
+          city: result["city"]&.[]("default")&.first,
+          country: result["country"]&.[]("default"),
+          country_code: result["country_code"],
+          county: result["county"]&.[]("default")&.first,
+          objectID: result["objectID"],
+          geoloc: result["_geoloc"],
+          postcodes: postcodes,
+          state: result["administrative"]&.first
+        }.with_indifferent_access
+      end
+
+      def headers
+        {
+          accept: "application/json",
+          "Content-Type": "application/json",
+          "X-Algolia-Application-Id": SiteSetting.debtcollective_algolia_app_id,
+          "X-Algolia-API-Key": SiteSetting.debtcollective_algolia_api_key
+        }
+      end
     end
   end
 end

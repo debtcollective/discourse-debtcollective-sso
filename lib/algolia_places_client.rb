@@ -55,7 +55,7 @@ module Debtcollective
         postcodes = result["postcode"]
 
         postcodes = postcodes.map do |postcode|
-          if postcode && postcode.is_a?(Hash)
+          if postcode.is_a?(Hash)
             postcode = ActionView::Base.full_sanitizer.sanitize(postcode["value"])
           else
             postcode

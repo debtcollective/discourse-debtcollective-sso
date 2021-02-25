@@ -36,4 +36,5 @@ There are cases where want to restart the server in order to see changes. Do to 
 1. Get into the Discourse docker container. `./launcher enter web`
 1. Stop unicorn. `sv stop unicorn`
 1. Compile new assets `su discourse -c 'bundle exec rake assets:precompile'`
+1. Upload assets to S3 `bundle exec rake s3:upload_assets`
 1. Start unicorn. `sv start unicorn`

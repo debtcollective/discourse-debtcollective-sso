@@ -3,13 +3,7 @@ en:
     admin:
       user_fields:
         field_types:
-          phone-number: 'US - Phone Number'
-          zip-code: 'US - Zip Code'
-          state: 'US - State'
+          phone-number: "US - Phone Number"
+          zip-code: "US - Zip Code"
+          state: "US - State"
   js:
-    discourse_debtcollective_collectives:
-      alert: '<b>Join this Collective to comment and start new topics</b>.'
-      topic: '<b>You need to Join this Collective before you can Reply to this Topic</b>.'
-      no_permission: "You don't have permission to post"
-      joined: 'Thanks for joining! The page will reload.'
-      join: 'Join'

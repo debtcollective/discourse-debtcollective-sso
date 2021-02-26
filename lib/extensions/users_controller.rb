@@ -97,9 +97,8 @@ module Debtcollective
         return fail_with("login.wrong_invite_code")
       end
 
-      # Generate username if it's empty and it's an API call
-      # We use to create user accounts from the Membership app
-      if is_api? && params[:username].blank?
+      # We use this to create accounts from the Membership app
+      if is_api? && guardian.is_admin? && params[:username].blank?
         params[:username] = UserNameSuggester.suggest(user_params[:email])
       end
 

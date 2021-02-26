@@ -24,5 +24,25 @@ describe "UsersController" do
         expect(json['username']).to eq(generated_username)
       end
     end
+
+    context "with a user account" do
+      it 'returns an error' do
+        post_user_params ={
+          name: "orlando test",
+          username: nil,
+          password: "strongpassword",
+          email: "orlando@test.com"
+        }
+        generated_username = UserNameSuggester.suggest(post_user_params[:email])
+        api_key = Fabricate(:api_key, user: Fabricate(:user))
+
+        post "/u.json", params: post_user_params, headers: { HTTP_API_KEY: api_key.key }
+        json = response.parsed_body
+
+        expect(response.status).to eq(400)
+        expect(json['errors']).to be_present
+        expect(json['success']).to eq(nil)
+      end
+    end
   end
 end

@@ -76,6 +76,32 @@ module Debtcollective
       render layout: 'no_ember'
     end
 
+    def email_token
+      raise Discourse::NotFound if !SiteSetting.enable_local_logins_via_email
+      raise Discourse::NotFound unless is_api? && guardian.is_admin?
+
+      params.require(:login)
+
+      user = User.human_users.find_by_username_or_email(params[:login])
+      user_presence = user.present? && !user.staged
+
+      if user
+        RateLimiter.new(nil, "email-login-hour-#{user.id}", 12, 1.hour).performed!
+        RateLimiter.new(nil, "email-login-min-#{user.id}", 6, 1.minute).performed!
+
+        if user_presence
+          email_token = user.email_tokens.create!(email: user.email)
+        end
+      end
+
+      json = success_json
+      json[:user_found] = user_presence
+      json[:email_token] = email_token&.token
+      render json: json
+    rescue RateLimiter::LimitExceeded
+      render_json_error(I18n.t("rate_limiter.slow_down"))
+    end
+
     def create
       params.require(:email)
       params.require(:invite_code) if SiteSetting.require_invite_code

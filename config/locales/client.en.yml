@@ -1,9 +1,11 @@
 en:
   admin_js:
     admin:
+      site_settings:
+        categories:
+          discourse_debtcollective_sso: "Discourse Debt Collective SSO "
       user_fields:
         field_types:
           phone-number: "US - Phone Number"
           zip-code: "US - Zip Code"
           state: "US - State"
-  js:

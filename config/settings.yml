@@ -1,4 +1,4 @@
-plugins:
+discourse_debtcollective_sso:
   enable_debtcollective_sso:
     default: true
   sso_cookie_domain:

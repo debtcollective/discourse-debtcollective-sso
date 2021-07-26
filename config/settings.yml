@@ -23,5 +23,5 @@ discourse_debtcollective_sso:
     default: "Solidarity Bloc"
     client: false
   debtcollective_after_signup_redirect_url:
-    default: "https://debtcollective.org/hub"
+    default: "https://membership.debtcollective.org/"
     client: true
